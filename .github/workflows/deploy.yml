@@ -62,18 +62,6 @@ jobs:
               echo 'VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"' >> .env
             fi
 
-      - name: Deploy Nginx Configuration
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            echo "Deploying Nginx Configuration..."
-            cp /var/www/docker/seminarapi/.nginx/seminarapi.conf /etc/nginx/conf.d/seminarapi.conf
-            docker exec nginx-container nginx -s reload
-            echo "Nginx configuration updated & reloaded."
-
       - name: Build Docker Services
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -167,3 +155,6 @@ jobs:
           script: |
             cd /var/www/docker/seminarapi
             docker compose exec -T seminarapi php artisan optimize:clear
+            docker compose exec -T seminarapi php artisan config:clear
+            docker compose exec -T seminarapi php artisan cache:clear
+            docker compose exec -T seminarapi php artisan config:cache
